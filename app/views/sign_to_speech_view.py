@@ -65,6 +65,7 @@ class SignToSpeechView(ctk.CTkFrame):
         
         self.cap = None
         self.is_running = False
+        self.last_spoken_text = ""
 
     def speak_prediction(self):
         text = self.prediction_var.get()
@@ -102,13 +103,18 @@ class SignToSpeechView(ctk.CTkFrame):
             if lm_list:
                 prediction = self.recognizer.process_landmarks(lm_list)
                 if prediction:
-                    self.prediction_var.set(prediction["text"])
+                    pred_text = prediction["text"]
+                    self.prediction_var.set(pred_text)
+                    
+                    if pred_text != self.last_spoken_text:
+                        self.last_spoken_text = pred_text
+                        self.speak_prediction()
                 else:
-                    buf_len = len(self.recognizer.sequence_buffer)
-                    self.prediction_var.set(f"Analyzing...\n{buf_len}/{self.recognizer.sequence_length}")
+                    self.prediction_var.set("Waiting...")
             else:
                 self.prediction_var.set("No hand detected")
                 self.recognizer.clear()
+                self.last_spoken_text = ""
 
             color_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             image = Image.fromarray(color_frame)

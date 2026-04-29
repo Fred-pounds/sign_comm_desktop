@@ -3,13 +3,13 @@ import numpy as np
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
-import os
+
+from app.paths import resource_path
 
 class HandTracker:
     def __init__(self, max_hands=1, detection_con=0.5, track_con=0.5, model_path=None):
         if model_path is None:
-            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-            model_path = os.path.join(base_dir, "models", "hand_landmarker.task")
+            model_path = resource_path("models", "hand_landmarker.task")
             
         base_options = python.BaseOptions(model_asset_path=model_path)
         options = vision.HandLandmarkerOptions(

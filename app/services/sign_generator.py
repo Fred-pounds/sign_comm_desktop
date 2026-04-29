@@ -1,10 +1,11 @@
 import os
 
+from app.paths import resource_path
+
 class SignGenerator:
     def __init__(self, assets_dir=None):
         if assets_dir is None:
-            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-            assets_dir = os.path.join(base_dir, "assets")
+            assets_dir = resource_path("assets")
         self.assets_dir = assets_dir
         self.assets_map = self._build_assets_map()
 

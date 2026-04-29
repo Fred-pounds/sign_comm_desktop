@@ -1,13 +1,13 @@
 import os
 import json
 import vosk
-import numpy as np
+
+from app.paths import resource_path
 
 class SpeechRecognizer:
     def __init__(self, model_path=None):
         if model_path is None:
-            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-            model_path = os.path.join(base_dir, "models", "vosk-model-small-en-us-0.15")
+            model_path = resource_path("models", "vosk-model-small-en-us-0.15")
         
         if not os.path.exists(model_path):
              raise FileNotFoundError(f"Vosk model not found at {model_path}")

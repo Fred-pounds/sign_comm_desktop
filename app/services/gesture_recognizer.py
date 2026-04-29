@@ -1,6 +1,7 @@
 import numpy as np
-import os
 import ai_edge_litert.interpreter as tflite
+
+from app.paths import resource_path
 
 class GestureRecognizer:
     def __init__(self, model_path=None, label_path=None, threshold=0.8):
@@ -8,11 +9,10 @@ class GestureRecognizer:
         self.sequence_length = 30
         self.sequence_buffer = []
         
-        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         if model_path is None:
-            model_path = os.path.join(base_dir, "models", "lstm_model.tflite")
+            model_path = resource_path("models", "lstm_model.tflite")
         if label_path is None:
-            label_path = os.path.join(base_dir, "models", "labels.txt")
+            label_path = resource_path("models", "labels.txt")
 
         self.labels = []
         try:
@@ -39,12 +39,14 @@ class GestureRecognizer:
         if len(self.sequence_buffer) > self.sequence_length:
             self.sequence_buffer.pop(0)
             
-        if len(self.sequence_buffer) == self.sequence_length:
-            return self._predict()
-        return None
+        padded_buffer = list(self.sequence_buffer)
+        if len(padded_buffer) < self.sequence_length:
+            padded_buffer.extend([relative_lm] * (self.sequence_length - len(padded_buffer)))
+            
+        return self._predict(padded_buffer)
 
-    def _predict(self):
-        input_data = np.array([self.sequence_buffer], dtype=np.float32)
+    def _predict(self, sequence):
+        input_data = np.array([sequence], dtype=np.float32)
         try:
             self.interpreter.set_tensor(self.input_details[0]['index'], input_data)
             self.interpreter.invoke()
